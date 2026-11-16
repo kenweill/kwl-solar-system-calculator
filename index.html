@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solar &amp; UPS Calculator: size your battery, panels and inverter</title>
+<meta name="description" content="Free solar and UPS calculator. List your appliances and get the battery size, solar panels, inverter, DC breaker and cable you need for off-grid or brownout backup.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --paper:#EEF1EA; --panel:#FFFFFF; --ink:#16231F; --muted:#5B6B64;
+  --line:#C9D2C4; --solar:#1F4E79; --amber:#C98A00; --amber-bg:#FBF1D6;
+  --display:'Barlow Condensed','Arial Narrow',sans-serif;
+  --body:'Source Sans 3',system-ui,sans-serif;
+}
+html{font-size:16px}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);line-height:1.5}
+a{color:var(--solar)}
+:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+header{max-width:1100px;margin:0 auto;padding:40px 20px 8px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1;letter-spacing:.005em}
+header p{margin-top:10px;max-width:60ch;color:var(--muted);font-size:1.05rem}
+main{max-width:1100px;margin:0 auto;padding:20px;display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:start}
+h2{font-family:var(--display);font-weight:600;font-size:1.5rem;margin-bottom:12px}
+section{margin-bottom:28px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.presets button,.btn{font:inherit;font-size:.9rem;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 11px;cursor:pointer;color:var(--ink)}
+.presets button:hover,.btn:hover{border-color:var(--solar);color:var(--solar)}
+.rows{border-top:2px solid var(--ink)}
+.row,.head{display:grid;grid-template-columns:minmax(110px,2fr) 70px 54px 64px 54px 32px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.head{font-size:.8rem;color:var(--muted);padding:6px 0}
+input,select{font:inherit;width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--panel);color:var(--ink)}
+input[type=checkbox]{width:18px;height:18px;margin:auto}
+.del{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted)}
+.del:hover{color:#B3261E}
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+label span{display:block;font-size:.85rem;color:var(--muted);margin-bottom:3px}
+aside{position:sticky;top:16px;background:var(--panel);border:2px solid var(--ink);padding:22px}
+.big{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;margin-bottom:18px}
+.big div b{display:block;font-family:var(--display);font-size:2.6rem;line-height:1;font-weight:700;color:var(--solar)}
+.big div small{font-size:.85rem;color:var(--muted)}
+dl{border-top:1px solid var(--line)}
+dl div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.95rem}
+dt{color:var(--muted)}dd{font-weight:600;text-align:right}
+.note{margin-top:16px;padding:10px 12px;background:var(--amber-bg);border-left:4px solid var(--amber);font-size:.85rem}
+.empty{color:var(--muted);padding:14px 0}
+footer{max-width:1100px;margin:0 auto;padding:10px 20px 50px;color:var(--muted);font-size:.85rem}
+@media(max-width:860px){
+  main{grid-template-columns:1fr}
+  aside{position:static}
+}
+@media(max-width:520px){
+  .row,.head{grid-template-columns:1fr 60px 44px 54px 44px 28px;gap:5px}
+  input,select{padding:6px 4px}
+}
+@media print{.presets,.del,.btn{display:none}aside{border-width:1px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Solar &amp; UPS Calculator</h1>
+  <p>List what you want to power. Get the battery, solar panels, inverter, breaker and cable to match.</p>
+</header>
+
+<main>
+  <div>
+    <section>
+      <h2>1. Your appliances</h2>
+      <div class="presets" id="presets"></div>
+      <div class="rows" id="rows" aria-live="polite"></div>
+      <p style="margin-top:10px"><button class="btn" id="add">Add appliance</button> <button class="btn" id="clear">Clear all</button></p>
+      <p class="note">Hours per day is how long it is actually drawing power. For a refrigerator, use about 8 hours, since the compressor cycles on and off. Tick Motor for fridges, fans, pumps and aircon, because they draw extra power at start.</p>
+    </section>
+
+    <section>
+      <h2>2. Your system</h2>
+      <div class="settings">
+        <label><span>Battery voltage</span>
+          <select id="volt"><option>12</option><option>24</option><option>48</option></select></label>
+        <label><span>Battery type</span>
+          <select id="chem">
+            <option value="0.8">LiFePO4 (use 80%)</option>
+            <option value="0.5">Lead-acid or AGM (use 50%)</option>
+          </select></label>
+        <label><span>Days without sun</span>
+          <input type="number" id="days" min="0.5" step="0.5" value="1"></label>
+        <label><span>Sun hours per day</span>
+          <input type="number" id="psh" min="1" max="8" step="0.1" value="4.5"></label>
+        <label><span>Solar panel watts</span>
+          <input type="number" id="pw" min="50" step="10" value="550"></label>
+        <label><span>Inverter efficiency %</span>
+          <input type="number" id="eff" min="70" max="98" value="90"></label>
+        <label><span>Solar system losses %</span>
+          <input type="number" id="loss" min="5" max="50" value="20"></label>
+        <label><span>Battery you already have (Ah)</span>
+          <input type="number" id="have" min="0" step="10" placeholder="optional"></label>
+      </div>
+    </section>
+  </div>
+
+  <aside>
+    <h2>Recommended</h2>
+    <div id="out"></div>
+  </aside>
+</main>
+
+<footer>
+  These are estimates for planning. Have a qualified electrician check the final design, especially DC wiring, fuses and breakers, which can start fires when undersized.
+</footer>
+
+<script>
+(function(){
+  var PRESETS=[["LED bulb",10,0,5],["Electric fan",50,1,8],["WiFi router",12,0,24],["Laptop",60,0,6],["LED TV",80,0,5],["Refrigerator",150,1,8],["Phone charger",10,0,3],["Water pump",370,1,1]];
+  var INV=[300,500,600,800,1000,1500,2000,3000,4000,5000,6000,8000,10000];
+  var BRK=[16,20,32,40,50,63,80,100,125,160,200,250,315,400];
+  var CAB=[[32,6],[50,10],[63,16],[80,25],[100,35],[125,50],[160,70],[200,95],[250,120],[400,185]];
+  var rows=[{n:"LED bulb",w:10,q:4,h:5,m:0},{n:"Electric fan",w:50,q:2,h:8,m:1},{n:"WiFi router",w:12,q:1,h:24,m:0},{n:"Refrigerator",w:150,q:1,h:8,m:1}];
+  var $=function(id){return document.getElementById(id)};
+  try{var s=JSON.parse(localStorage.getItem("sucalc")||"null");if(s&&s.length)rows=s}catch(e){}
+
+  function num(id){return parseFloat($(id).value)||0}
+  function up(list,v){for(var i=0;i<list.length;i++)if(list[i]>=v)return list[i];return list[list.length-1]}
+  function fmt(n,d){return n.toLocaleString("en-US",{maximumFractionDigits:d||0})}
+
+  function draw(){
+    var box=$("rows");box.innerHTML="";
+    if(!rows.length){box.innerHTML='<p class="empty">No appliances yet. Pick one above or add your own.</p>';return}
+    var h=document.createElement("div");h.className="head";
+    h.innerHTML="<span>Appliance</span><span>Watts</span><span>Qty</span><span>Hrs/day</span><span>Motor</span><span></span>";
+    box.appendChild(h);
+    rows.forEach(function(r,i){
+      var d=document.createElement("div");d.className="row";
+      d.innerHTML='<input aria-label="Name" value="'+r.n.replace(/"/g,"&quot;")+'">'+
+        '<input aria-label="Watts" type="number" min="0" value="'+r.w+'">'+
+        '<input aria-label="Quantity" type="number" min="0" value="'+r.q+'">'+
+        '<input aria-label="Hours per day" type="number" min="0" max="24" step="0.5" value="'+r.h+'">'+
+        '<input aria-label="Motor load" type="checkbox"'+(r.m?" checked":"")+'>'+
+        '<button class="del" aria-label="Remove" title="Remove">×</button>';
+      var f=d.querySelectorAll("input");
+      f[0].oninput=function(){r.n=this.value;save()};
+      f[1].oninput=function(){r.w=parseFloat(this.value)||0;calc()};
+      f[2].oninput=function(){r.q=parseFloat(this.value)||0;calc()};
+      f[3].oninput=function(){r.h=parseFloat(this.value)||0;calc()};
+      f[4].onchange=function(){r.m=this.checked?1:0;calc()};
+      d.querySelector(".del").onclick=function(){rows.splice(i,1);draw();calc()};
+      box.appendChild(d);
+    });
+  }
+  function save(){try{localStorage.setItem("sucalc",JSON.stringify(rows))}catch(e){}}
+
+  function calc(){
+    save();
+    var run=0,daily=0,motor=0;
+    rows.forEach(function(r){run+=r.w*r.q;daily+=r.w*r.q*r.h;if(r.m&&r.q>0&&r.w>motor)motor=r.w});
+    var out=$("out");
+    if(run<=0){out.innerHTML='<p class="empty">Add at least one appliance to see results.</p>';return}
+    var V=num("volt")||12,dod=parseFloat($("chem").value),days=num("days")||1,
+        psh=num("psh")||4.5,pw=num("pw")||550,eff=(num("eff")||90)/100,loss=(num("loss")||20)/100,have=num("have");
+    var peak=run+2*motor,invNeed=Math.max(run*1.25,peak),inv=up(INV,invNeed);
+    var battWh=daily/eff,needWh=battWh*days/dod,ah=needWh/V;
+    var array=battWh/(psh*(1-loss)),panels=Math.ceil(array/pw);
+    var mppt=Math.ceil(panels*pw/V*1.25);
+    var dcA=inv/(V*eff),brk=up(BRK,dcA*1.25),cab=120;
+    for(var i=0;i<CAB.length;i++){if(CAB[i][0]>=brk){cab=CAB[i][1];break}}
+    var html='<div class="big">'+
+      '<div><b>'+fmt(Math.ceil(ah/10)*10)+'</b><small>Ah battery at '+V+'V</small></div>'+
+      '<div><b>'+panels+'</b><small>solar panels of '+pw+'W</small></div>'+
+      '<div><b>'+fmt(inv)+'</b><small>W inverter (pure sine)</small></div>'+
+      '<div><b>'+fmt(daily/1000,2)+'</b><small>kWh used per day</small></div></div><dl>'+
+      row("Running load",fmt(run)+" W")+
+      row("Peak load with motor start",fmt(peak)+" W")+
+      row("Battery energy needed",fmt(needWh/1000,1)+" kWh")+
+      row("Solar array size",fmt(panels*pw)+" W")+
+      row("MPPT charge controller",fmt(mppt)+" A or more")+
+      row("DC breaker at battery",fmt(brk)+" A")+
+      row("DC cable, short run",fmt(cab)+" mm²");
+    if(have>0){var hrs=V*have*dod*eff/run;
+      html+=row("Your "+fmt(have)+" Ah battery runs",hrs>=1?fmt(hrs,1)+" hours":fmt(hrs*60)+" minutes")}
+    html+='</dl><p class="note">The battery size is rounded up to the next 10 Ah. The cable size is for runs under about 2 meters. Use thicker cable for longer runs.</p>';
+    out.innerHTML=html;
+  }
+  function row(a,b){return "<div><dt>"+a+"</dt><dd>"+b+"</dd></div>"}
+
+  var p=$("presets");
+  PRESETS.forEach(function(x){
+    var b=document.createElement("button");b.textContent="+ "+x[0]+" "+x[1]+"W";
+    b.onclick=function(){rows.push({n:x[0],w:x[1],q:1,h:x[3],m:x[2]});draw();calc()};
+    p.appendChild(b);
+  });
+  $("add").onclick=function(){rows.push({n:"",w:0,q:1,h:1,m:0});draw();calc()};
+  $("clear").onclick=function(){rows=[];draw();calc()};
+  ["volt","chem","days","psh","pw","eff","loss","have"].forEach(function(id){$(id).oninput=calc;$(id).onchange=calc});
+  draw();calc();
+})();
+</script>
+</body>
+</html>
