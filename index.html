@@ -49,6 +49,7 @@ dt{color:var(--muted)}dd{font-weight:600;text-align:right}
 .note{margin-top:16px;padding:10px 12px;background:var(--amber-bg);border-left:4px solid var(--amber);font-size:.85rem}
 .empty{color:var(--muted);padding:14px 0}
 footer{max-width:1100px;margin:0 auto;padding:10px 20px 50px;color:var(--muted);font-size:.85rem}
+footer .credit{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);color:var(--ink)}
 @media(max-width:860px){
   main{grid-template-columns:1fr}
   aside{position:static}
@@ -110,6 +111,12 @@ footer{max-width:1100px;margin:0 auto;padding:10px 20px 50px;color:var(--muted);
 
 <footer>
   These are estimates for planning. Have a qualified electrician check the final design, especially DC wiring, fuses and breakers, which can start fires when undersized.
+  <div class="credit">
+    <span>Built by Ken Weill Lumacad</span>
+    <a href="https://kenweill.com" target="_blank" rel="noopener">Resume</a>
+    <a href="https://github.com/kenweill/solar-ups-calculator" target="_blank" rel="noopener">Source code</a>
+    <a href="https://github.com/kenweill/solar-ups-calculator/issues" target="_blank" rel="noopener">Report a problem</a>
+  </div>
 </footer>
 
 <script>
