@@ -1,12 +1,12 @@
-# Solar & UPS Calculator
+# KWL Solar & UPS Calculator
 
 A free calculator that sizes a solar and battery backup system. List your appliances, then get the battery capacity, solar panels, inverter, charge controller, DC breaker, and cable you need.
 
 ## Use it now
 
-**[Open the calculator](https://kenweill.github.io/solar-ups-calculator/)**
+**[Open the calculator](https://kenweill.github.io/kwl-solar-ups-calculator/)**
 
-https://kenweill.github.io/solar-ups-calculator/
+https://kenweill.github.io/kwl-solar-ups-calculator/
 
 No sign-up, no install, and no tracking. It works in any browser on a phone, tablet, or computer.
 
@@ -37,7 +37,7 @@ No sign-up, no install, and no tracking. It works in any browser on a phone, tab
 
 1. Clone the repository:
    ```
-   git clone https://github.com/kenweill/solar-ups-calculator.git
+   git clone https://github.com/kenweill/kwl-solar-ups-calculator.git
    ```
 2. Open `index.html` in any browser.
 
